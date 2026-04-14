@@ -27,3 +27,12 @@ npm run dev
 # Installed Vite
 # Installed ES7+ React/Redux/React-Native snippets by dsznajder
 # Installed React developer tools as an extension
+## React
+Install react router dom 
+# Handling CORS header
+install django cors headers using the command pip install django-cors-headers
+
+# Installing font awesome for react
+follow the step on https://docs.fontawesome.com/web/use-with/react
+
+# Installing djangorestframework sinplejwt

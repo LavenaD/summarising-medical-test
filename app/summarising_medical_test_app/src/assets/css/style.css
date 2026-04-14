@@ -1,0 +1,15 @@
+body{
+    background-color: #212529;
+    font-family: Arial, sans-serif;
+}
+.bg-light-dark{
+    background-color: #2b3035;
+}
+#root{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.container{
+    font: 1;
+}

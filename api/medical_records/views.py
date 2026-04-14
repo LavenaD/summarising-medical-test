@@ -1,7 +1,7 @@
 import os
 
 from medical_records.models import MedicalRecord
-from .serializers import MedicalRecordSerializer
+from .serializers import MedicalRecordSerializer, ProcessFileSerializer
 from django.conf import settings
 from rest_framework import viewsets
 from medical_records.filters import MedicalRecordFilter
@@ -130,17 +130,21 @@ class MedicalRecordViewset(viewsets.ModelViewSet):
 
 class ProcessDirectoryFilesView(APIView):
     def post(self, request):
-        directory_path = request.data.get('directory_path')
+        serializer = ProcessFileSerializer(data=request.data)
+        if serializer.is_valid():
+            input_folder_path = serializer.validated_data.get('input_folder_path')
+            max_rows_per_outputfile = serializer.validated_data.get('max_rows_per_outputfile')
 
-        if not directory_path:
-            return Response({"error": "Directory path is required."}, status=status.HTTP_400_BAD_REQUEST)
-        directory_path = os.path.join(settings.BASE_DIR, directory_path).replace("\\", "/")
-        print(f"Processing files in directory: {directory_path}")
-        rows_to_write = request.data.get('rows_to_write', 1000)  # Default to 500 if not provided
-        
+        if not input_folder_path:
+            return Response({"error": "Input folder path is required."}, status=status.HTTP_400_BAD_REQUEST)
+        input_folder_path = os.path.join(settings.BASE_DIR, input_folder_path)
+        input_folder_path = os.path.normpath(input_folder_path)
+        print(f"Processing files in directory: {input_folder_path}")
+        rows_to_write = max_rows_per_outputfile if max_rows_per_outputfile is not None else 1000  # Default to 1000 if not provided
+
         try:
             medicalRecords =  MedicalRecordProcessor()
-            response = medicalRecords.process_files(directory_path, rows_to_write)
+            response = medicalRecords.process_files(input_folder_path, rows_to_write)
             print(response)
             return Response({"message": response}, status=status.HTTP_200_OK)
         except Exception as e:

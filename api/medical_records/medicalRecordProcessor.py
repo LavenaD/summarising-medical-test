@@ -13,6 +13,10 @@ class MedicalRecordProcessor():
 
     def process_files(self, input_folder_path, max_rows_per_outputfile=1000)-> str:
         try:
+            print(f"Processing files in directory: {input_folder_path}")
+            if not os.path.exists(input_folder_path):
+                print(f"Input folder path '{input_folder_path}' does not exist.")
+                return f"Input folder path '{input_folder_path}' does not exist."
             for file in os.listdir(input_folder_path):
                 if file.endswith(".xml"):
                     file_path = os.path.join(input_folder_path, file)
@@ -35,6 +39,7 @@ class MedicalRecordProcessor():
             return self.write_csv_file(max_rows_per_outputfile )
         except Exception as e:
             print(f"Error reading file {file_path}: {e}")
+            return f"Error reading file {file_path}: {e}"
     def write_csv_file(self, max_rows_per_outputfile)-> str:
         csv_writer = CsvWriter.CsvWriter()
         return csv_writer.write_to_file(self.data, max_rows_per_outputfile)

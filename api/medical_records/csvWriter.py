@@ -18,10 +18,13 @@ class CsvWriter():
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
             if not file_exists:
                 writer.writeheader()
-            while row_num < max_rows_per_outputfile and data:
-                row = data.pop(row_num)
+            original_length = len(data)
+            while row_num < max_rows_per_outputfile and row_num < original_length:
+                print(f"Writing row {row_num} of {original_length}")
+                row = data.pop()
                 if row is None:
                     break
                 writer.writerow(row)
                 row_num += 1
-        return (f"Written {row_num} rows to {output_file}")
+            
+        return (f"Wrote {row_num} rows to {output_file}")

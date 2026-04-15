@@ -186,6 +186,15 @@ psd
 thumb
 sketch
 
-data
 
+# Large files and folders
+api/resources/
+api/data/
+app/summarising_medical_test_app/public/models/
+*.model
+*.pt
+*.pth
+*.bin
+*.pkl
+*.csv
 # End of https://www.toptal.com/developers/gitignore/api/django,react

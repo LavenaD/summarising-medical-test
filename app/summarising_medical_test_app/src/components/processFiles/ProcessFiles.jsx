@@ -11,7 +11,7 @@ function ProcessFiles() {
     const [errors, setErrors] = useState({})
     const [success, setSuccess] = useState(false)
     const [loading, setLoading] = useState(false)
-
+    const [responseMessage, setResponseMessage] = useState('')
     const baseURL = import.meta.env.VITE_BACKEND_BASE_API
 
     const handleProcessFile = async (e) => {
@@ -27,6 +27,7 @@ function ProcessFiles() {
             setErrors({})
             setSuccess(true)
             setLoading(false)
+            setResponseMessage(response.data.message)
         }catch(error){
             console.error('Error processing files:', error)
             setErrors(error.response.data)
@@ -52,6 +53,8 @@ function ProcessFiles() {
                     </div>
 
                     {success && <div className='alert alert-success mt-3'>Files processed successfully!</div>}
+                    {errors.error && <div className='alert alert-danger mt-3'>{errors.error}</div>}
+                    {responseMessage && <div className='alert alert-info mt-3'>{responseMessage}</div>}
                     {loading ? (<button className='btn btn-info d-block mx-auto' disabled><FontAwesomeIcon icon={faSpinner} spin /> Please wait...</button> )
                                                     : ( <button type='submit' className='btn btn-info d-block mx-auto'>Process</button>)}
                 </form>

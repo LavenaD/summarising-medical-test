@@ -145,7 +145,6 @@ class ProcessDirectoryFilesView(APIView):
         try:
             medicalRecords =  MedicalRecordProcessor()
             response = medicalRecords.process_files(input_folder_path, rows_to_write)
-            print(response)
             return Response({"message": response}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

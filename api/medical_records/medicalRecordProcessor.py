@@ -12,34 +12,30 @@ class MedicalRecordProcessor():
         
 
     def process_files(self, input_folder_path, max_rows_per_outputfile=1000)-> str:
-        try:
-            print(f"Processing files in directory: {input_folder_path}")
-            if not os.path.exists(input_folder_path):
-                print(f"Input folder path '{input_folder_path}' does not exist.")
-                return f"Input folder path '{input_folder_path}' does not exist."
-            for file in os.listdir(input_folder_path):
-                if file.endswith(".xml"):
-                    file_path = os.path.join(input_folder_path, file)
-                    reader = xml_reader.XmlReader()          
-                    data_dict = reader.read_file(file_path)
-                    
-                    # This code is used to store the missing file ids in the missing_id_files list. 
-                    # It checks if the current file's id is not equal to the previous file's id + 1 
-                    # which indicates that there is a missing file in the sequence. 
-                    # If a missing file is detected, its id is added to the missing_id_files list for later reference.
-                    if data_dict is not None:
-                        self.data.append(data_dict) 
-                        # if self.previous_id is None:
-                        #     self.previous_id = data_dict.get("id").strip()
-                        # else:
-                        #     if int(data_dict.get("id").strip()) != int(self.previous_id) + 1:
-                        #         self.missing_id_files.append(int(self.previous_id) + 1)    
-                        # self.previous_id = data_dict.get("id").strip()
+        print(f"Processing files in directory: {input_folder_path}")
+        if not os.path.exists(input_folder_path):
+            print(f"Input folder path '{input_folder_path}' does not exist.")
+            return f"Input folder path '{input_folder_path}' does not exist."
+        for file in os.listdir(input_folder_path):
+            if file.endswith(".xml"):
+                file_path = os.path.join(input_folder_path, file)
+                reader = xml_reader.XmlReader()          
+                data_dict = reader.read_file(file_path)
+                
+                # This code is used to store the missing file ids in the missing_id_files list. 
+                # It checks if the current file's id is not equal to the previous file's id + 1 
+                # which indicates that there is a missing file in the sequence. 
+                # If a missing file is detected, its id is added to the missing_id_files list for later reference.
+                if data_dict is not None:
+                    self.data.append(data_dict) 
+                    # if self.previous_id is None:
+                    #     self.previous_id = data_dict.get("id").strip()
+                    # else:
+                    #     if int(data_dict.get("id").strip()) != int(self.previous_id) + 1:
+                    #         self.missing_id_files.append(int(self.previous_id) + 1)    
+                    # self.previous_id = data_dict.get("id").strip()
 
-            return self.write_csv_file(max_rows_per_outputfile )
-        except Exception as e:
-            print(f"Error reading file {file_path}: {e}")
-            return f"Error reading file {file_path}: {e}"
+        return self.write_csv_file(max_rows_per_outputfile )
     def write_csv_file(self, max_rows_per_outputfile)-> str:
         csv_writer = CsvWriter.CsvWriter()
         return csv_writer.write_to_file(self.data, max_rows_per_outputfile)

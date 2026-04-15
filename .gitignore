@@ -191,6 +191,7 @@ sketch
 # api/data/ecgen-radiology/test
 api/resources/
 app/summarising_medical_test_app/public/models/
+api/output/
 *.model
 *.pt
 *.pth

@@ -188,7 +188,7 @@ sketch
 
 
 # Large files and folders
-api/data/
+# api/data/ecgen-radiology/test
 api/resources/
 app/summarising_medical_test_app/public/models/
 *.model

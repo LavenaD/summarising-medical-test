@@ -6,6 +6,7 @@ from peft import PeftModel
 
 def run_evaluation_job(job_id):
     model_path = r"api\\django_api\\ai_model"
+    print(model_path)
 
     # load base model
     base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")

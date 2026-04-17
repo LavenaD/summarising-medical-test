@@ -36,3 +36,7 @@ install django cors headers using the command pip install django-cors-headers
 follow the step on https://docs.fontawesome.com/web/use-with/react
 
 # Installing djangorestframework sinplejwt
+
+<!-- For production ready follow 
+https://chatgpt.com/c/69e1ede4-8cc0-83eb-82d8-e84e28829e91
+ -->

@@ -4,6 +4,7 @@ from accounts import views as accounts_views
 from medical_records import views as medical_records_views
 from summarize import views as summarize_views
 from evaluate import views as evaluate_views
+from health.views import health
 
 # from .serializers import MedicalRecordSerializer
 from rest_framework_simplejwt.views import (
@@ -37,6 +38,7 @@ urlpatterns = [
     path('protected-view/', accounts_views.ProtectedView.as_view(), name='protected-view'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path("health/", health),
     path('medical_records/process/', medical_records_views.ProcessDirectoryFilesView.as_view(), name='process-medical-records'),  
     path('medical_records/', medical_records_views.MedicalRecordViewset.as_view({'get': 'list'}), name='medical-records'),
     path('summarize/', summarize_views.SummarizeFindingsView.as_view(), name='summarize-findings'),

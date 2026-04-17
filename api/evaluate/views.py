@@ -9,20 +9,22 @@ class EvaluateModelView(APIView):
     JOB_STORE = {}
     # simple in-memory store
     def post(self, request):
-        
-        job_id = str(uuid.uuid4())
-        self.JOB_STORE[job_id] = {"status": "queued"}
+        try:
+            job_id = str(uuid.uuid4())
+            self.JOB_STORE[job_id] = {"status": "queued"}
 
-        thread = threading.Thread(
-            target=run_evaluation_job,
-            args=(job_id,)
-        )
-        thread.start()
+            thread = threading.Thread(
+                target=run_evaluation_job,
+                args=(job_id,)
+            )
+            thread.start()
 
-        return Response({
-            "job_id": job_id,
-            "status": "started"
-        })
+            return Response({
+                "job_id": job_id,
+                "status": "started"
+            })
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def get_status(self, request, job_id):
         job = self.JOB_STORE.get(job_id)

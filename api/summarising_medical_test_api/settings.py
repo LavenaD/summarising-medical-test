@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,9 +27,9 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 
 # Application definition
@@ -48,11 +49,13 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework_simplejwt',
     'summarize',
+    "whitenoise.runserver_nostatic",
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -138,15 +141,30 @@ REST_FRAMEWORK = {
     'SEARCH_PARAM': 'query',
     'ORDERING_PARAM': 'ordering',
 }
+if not DEBUG:
+    CORS_ALLOWED_ORIGINS = [
+        "https://your-frontend.com",
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:5173",
+        "https://your-frontend.com",
+        "http://127.0.0.1"
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
+    ]
+
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    # "DEFAULT_RENDERER_CLASSES": [
+    #     "rest_framework.renderers.JSONRenderer",]
+    
 }
 
 SIMPLE_JWT = {

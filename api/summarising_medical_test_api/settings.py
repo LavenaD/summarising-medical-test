@@ -26,19 +26,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-raw_allowed_hosts = os.environ.get("ALLOWED_HOSTS", "")
+raw_allowed_hosts = config("ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(",") if host.strip()]
+
 if not ALLOWED_HOSTS:
-    ALLOWED_HOSTS = ["summarising-medical-test.onrender.com"]
+    if DEBUG:
+        ALLOWED_HOSTS = ["127.0.0.1"]
+    else:
+        ALLOWED_HOSTS = ["summarising-medical-test.onrender.com"]
 
+print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    "CSRF_TRUSTED_ORIGINS",
-    "http://localhost:5173,https://summarising-medical-test.onrender.com,http://127.0.0.1"
-).split(",") if os.environ.get("CSRF_TRUSTED_ORIGINS") else []
+# CSRF_TRUSTED_ORIGINS = config(
+#     "CSRF_TRUSTED_ORIGINS",
+#     "http://localhost:5173,https://summarising-medical-test.onrender.com,http://127.0.0.1"
+# ).split(",") if config("CSRF_TRUSTED_ORIGINS") else []
 
 
 # Application definition

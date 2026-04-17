@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class EvaluateConfig(AppConfig):
-    name = 'evaluate'
+    name = 'evaluate_model'

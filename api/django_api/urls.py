@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from accounts import views as accounts_views
 from medical_records import views as medical_records_views
 from summarize import views as summarize_views
-from evaluate import views as evaluate_views
+from evaluate_model import views as evaluate_views
 from health.views import health
 
 # from .serializers import MedicalRecordSerializer
@@ -42,5 +42,6 @@ urlpatterns = [
     path('medical_records/process/', medical_records_views.ProcessDirectoryFilesView.as_view(), name='process-medical-records'),  
     path('medical_records/', medical_records_views.MedicalRecordViewset.as_view({'get': 'list'}), name='medical-records'),
     path('summarize/', summarize_views.SummarizeFindingsView.as_view(), name='summarize-findings'),
-    path('evaluate/', evaluate_views.EvaluateModelView.as_view(), name='evaluate-model'),
+    path('evaluate/', evaluate_views.StartEvaluationView.as_view(), name='evaluate-model'),
+    path('evaluate/get_status/<str:job_id>/', evaluate_views.EvaluationStatusView.as_view(), name='get-status'),
 ]

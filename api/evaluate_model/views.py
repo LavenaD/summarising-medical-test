@@ -54,9 +54,6 @@ class EvaluateModelView(APIView):
         inputs = test_df["findings"].tolist()
         references = test_df["labels"].tolist()
 
-        # predict
-        predictions = []
-
         batch_size = 8  # try 4, 8, or 16 depending on memory
         predictions = []
 

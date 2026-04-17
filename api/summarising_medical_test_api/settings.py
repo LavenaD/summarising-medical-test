@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
@@ -143,12 +143,12 @@ REST_FRAMEWORK = {
 }
 if not DEBUG:
     CORS_ALLOWED_ORIGINS = [
-        "https://your-frontend.com",
+        "https://summarising-medical-test.onrender.com",
     ]
 else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:5173",
-        "https://your-frontend.com",
+        "https://summarising-medical-test.onrender.com",
         "http://127.0.0.1"
 
     ]

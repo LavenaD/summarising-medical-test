@@ -139,7 +139,7 @@ class ProcessDirectoryFilesView(APIView):
             return Response({"error": "Input folder path is required."}, status=status.HTTP_400_BAD_REQUEST)
         input_folder_path = os.path.join(settings.BASE_DIR, input_folder_path)
         input_folder_path = os.path.normpath(input_folder_path)
-        print(f"Processing files in directory: {input_folder_path}")
+        # print(f"Processing files in directory: {input_folder_path}")
         rows_to_write = max_rows_per_outputfile if max_rows_per_outputfile is not None else 1000  # Default to 1000 if not provided
 
         try:

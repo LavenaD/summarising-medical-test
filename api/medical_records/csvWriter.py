@@ -20,7 +20,7 @@ class CsvWriter():
                 writer.writeheader()
             original_length = len(data)
             while row_num < max_rows_per_outputfile and row_num < original_length:
-                print(f"Writing row {row_num} of {original_length}")
+                # print(f"Writing row {row_num} of {original_length}")
                 row = data.pop()
                 if row is None:
                     break

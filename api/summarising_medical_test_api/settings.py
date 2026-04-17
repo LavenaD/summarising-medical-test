@@ -29,8 +29,10 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "summarising-medical-test.onrender.com,127.0.0.1,localhost").split(",")
-
+raw_allowed_hosts = os.environ.get("ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(",") if host.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ["summarising-medical-test.onrender.com"]
 
 
 CSRF_TRUSTED_ORIGINS = os.environ.get(

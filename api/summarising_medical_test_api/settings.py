@@ -29,7 +29,14 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "summarising-medical-test.onrender.com").split(",")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "summarising-medical-test.onrender.com,127.0.0.1,localhost").split(",")
+
+
+
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "CSRF_TRUSTED_ORIGINS",
+    "http://localhost:5173,https://summarising-medical-test.onrender.com,http://127.0.0.1"
+).split(",") if os.environ.get("CSRF_TRUSTED_ORIGINS") else []
 
 
 # Application definition
@@ -130,7 +137,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # THIS WILL WORK ONLY FOR GENERICS AND VIEWSETS
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

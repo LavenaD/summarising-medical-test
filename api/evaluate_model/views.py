@@ -24,10 +24,11 @@ class EvaluateModelView(APIView):
     def run_evaluation_job(self, job_id):
         print(datetime.datetime.now(), "Starting evaluation job:", job_id)
         # load base model
-        base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
+        base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small",
+        tokem=True)
 
         # Hugging Face repo
-        model_path = os.environ.get("HHUGGINGFACE_REPOSITORY", "LavenaD/medical-summarizer-peft")
+        model_path = config("HHUGGINGFACE_REPOSITORY", "LavenaD/medical-summarizer-peft")
 
         # attach LoRA adapter
         model = PeftModel.from_pretrained(base_model, model_path)

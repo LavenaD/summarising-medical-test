@@ -11,6 +11,10 @@ from peft import PeftModel
 import os
 import datetime
 from decouple import config
+import logging
+from evaluate_model.serializers import EvaluateFileSerializer
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 class EvaluateModelView(APIView):
@@ -21,20 +25,22 @@ class EvaluateModelView(APIView):
         return job_id in self.JOB_STORE
 
     @classmethod
-    def run_evaluation_job(self, job_id):
-        print(datetime.datetime.now(), "Starting evaluation job:", job_id)
+    def run_evaluation_job(self, job_id, input_file_name):
+        logger.info(f"Starting evaluation job: {job_id} at {datetime.datetime.now()}")
         # load base model
         base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small",
-        tokem=True)
+        token=True)
 
         # Hugging Face repo
         model_path = config("HHUGGINGFACE_REPOSITORY", "LavenaD/medical-summarizer-peft")
 
         # attach LoRA adapter
         model = PeftModel.from_pretrained(base_model, model_path)
+        logger.info(f"LoRA adapter attached for job: {job_id} at {datetime.datetime.now()}")
 
         # tokenizer
         tokenizer = AutoTokenizer.from_pretrained(model_path)
+        logger.info(f"Tokenizer loaded for job: {job_id} at {datetime.datetime.now()}")
 
         # print(datetime.datetime.now(), "Model and tokenizer loaded for job:", job_id)
 
@@ -45,12 +51,11 @@ class EvaluateModelView(APIView):
 
         # load data
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        file_name = config("EVALUATION_CSV", "output_validation_20260415071239.csv")
-        csv_path = os.path.join(script_dir, "..", "output", file_name)
-        print(f"Loading evaluation data from: {csv_path}")
+        csv_path = os.path.join(script_dir, "..", "output", input_file_name)
+        logger.info(f"Loading evaluation data from: {csv_path}")
         test_df = pd.read_csv(csv_path)
+        logger.info(f"Test data loaded for job: {job_id} at {datetime.datetime.now()}")
 
-        print(datetime.datetime.now(), "Test data loaded for job:", job_id)
 
         inputs = test_df["findings"].tolist()
         references = test_df["labels"].tolist()
@@ -77,6 +82,9 @@ class EvaluateModelView(APIView):
                 "summarize medical report and return summary in no more than 2 sentences: " + str(text)
                 for text in batch_texts
             ]
+            logger.info(
+                f"Generating output for batch {start_idx}:{end_idx} in job {job_id} at {datetime.datetime.now()}"
+            )
 
             tokens = tokenizer(
                 prompted_batch,
@@ -98,14 +106,14 @@ class EvaluateModelView(APIView):
                 skip_special_tokens=True
             )
 
-            predictions.extend(batch_predictions)
-
-            print(
-                datetime.datetime.now(),
-                f"Decoded output for batch {start_idx}:{end_idx} in job {job_id}"
+            logger.info(
+                f"Decoded output for batch {start_idx}:{end_idx} in job {job_id} at {datetime.datetime.now()}"
             )
 
-        print(datetime.datetime.now(), f"All predictions generated for job: {job_id}")
+            predictions.extend(batch_predictions)
+
+
+        logger.info(f"All predictions generated for job: {job_id} at {datetime.datetime.now()}")
 
         progress = 96 if int((end_idx / complete_job) * 100) > 96 else int((end_idx / complete_job) * 100)
 
@@ -127,12 +135,16 @@ class EvaluateModelView(APIView):
             "results": results
         }
 
-        print(results)
+        logger.info(f"Evaluation results for job {job_id} at {datetime.datetime.now()}: {results}")
 
 class StartEvaluationView(APIView):
     def post(self, request):
         try:
             job_id = str(uuid.uuid4())
+
+            serializer = EvaluateFileSerializer(data=request.data)
+            if serializer.is_valid():
+                input_file_name = serializer.validated_data.get('input_file_name')
 
             if EvaluateModelView.check_job_exists(job_id):
                 return Response(
@@ -145,7 +157,7 @@ class StartEvaluationView(APIView):
 
             thread = threading.Thread(
                 target= EvaluateModelView.run_evaluation_job,
-                args=(job_id,)
+                args=(job_id,input_file_name,)
             )
             thread.start()
 
@@ -154,15 +166,22 @@ class StartEvaluationView(APIView):
                 "status": "started"
             })
         except Exception as e:
+            logger.error(f"Error starting evaluation job at {datetime.datetime.now()}: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class EvaluationStatusView(APIView):   
     def get(self, request, job_id):
-        job = EvaluateModelView.JOB_STORE.get(job_id)
+        try:
+            job = EvaluateModelView.JOB_STORE.get(job_id)
 
-        if not job:
-            return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
+            logger.info(f"Status check for job {job_id} at {datetime.datetime.now()}: {job}")
 
-        return Response(job)
+            if not job:
+                return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response(job)
+        except Exception as e:
+            logger.error(f"Error checking status for job {job_id} at {datetime.datetime.now()}: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     

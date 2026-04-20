@@ -6,21 +6,26 @@ from peft import PeftModel
 import os
 import datetime
 from decouple import config
+import logging
+
+logger = logging.getLogger(__name__)
 
 def run_evaluation_job(job_id):
-    print(datetime.datetime.now(), "Starting evaluation job:", job_id)
+    logger.info(f"Starting evaluation job: {job_id}")
     # load base model
     base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
+    logger.info(f"Base model loaded for job: {job_id} at {datetime.datetime.now()}")
 
     # Hugging Face repo
-    model_path = os.environ.get("HHUGGINGFACE_REPOSITORY", "LavenaD/medical-summarizer-peft")
-
+    model_path = config("HHUGGINGFACE_REPOSITORY", "LavenaD/medical-summarizer-peft")
+    logger.info(f"Using model path: {model_path} for job: {job_id}")
     # attach LoRA adapter
     model = PeftModel.from_pretrained(base_model, model_path)
+    logger.info(f"LoRA adapter attached for job: {job_id}")
 
     # tokenizer
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-
+    logger.info(f"Tokenizer loaded for job: {job_id} at {datetime.datetime.now()}")
     # print(datetime.datetime.now(), "Model and tokenizer loaded for job:", job_id)
 
     device = torch.device("cpu")
@@ -32,10 +37,10 @@ def run_evaluation_job(job_id):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_name = config("EVALUATION_CSV", "output_validation_20260415071239.csv")
     csv_path = os.path.join(script_dir, "..", "output", file_name)
-    print(f"Loading evaluation data from: {csv_path}")
+    logger.info(f"Loading evaluation data from: {csv_path}")
     test_df = pd.read_csv(csv_path)
 
-    print(datetime.datetime.now(), "Test data loaded for job:", job_id)
+    logger.info(f"Test data loaded for job: {job_id} at {datetime.datetime.now()}")
 
     inputs = test_df["findings"].tolist()
     references = test_df["labels"].tolist()
@@ -52,9 +57,8 @@ def run_evaluation_job(job_id):
         end_idx = min(start_idx + batch_size, len(inputs))
         batch_texts = inputs[start_idx:end_idx]
 
-        print(
-            datetime.datetime.now(),
-            f"Generating output for batch {start_idx}:{end_idx} in job {job_id}"
+        logger.info(
+            f"Generating output for batch {start_idx}:{end_idx} in job {job_id} at {datetime.datetime.now()}"
         )
 
         prompted_batch = [
@@ -84,12 +88,11 @@ def run_evaluation_job(job_id):
 
         predictions.extend(batch_predictions)
 
-        print(
-            datetime.datetime.now(),
-            f"Decoded output for batch {start_idx}:{end_idx} in job {job_id}"
+        logger.info(
+            f"Decoded output for batch {start_idx}:{end_idx} in job {job_id} at {datetime.datetime.now()}"
         )
 
-    print(datetime.datetime.now(), f"All predictions generated for job: {job_id}")
+    logger.info(f"All predictions generated for job: {job_id} at {datetime.datetime.now()}")
 
     rouge = evaluate.load("rouge")
 
@@ -98,5 +101,4 @@ def run_evaluation_job(job_id):
         references=references
     )
 
-    print(results)
-
+    logger.info(f"Evaluation results for job {job_id} at {datetime.datetime.now()}: {results}")

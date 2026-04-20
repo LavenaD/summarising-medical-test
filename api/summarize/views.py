@@ -12,7 +12,9 @@ from peft import PeftModel
 import os
 import datetime
 from decouple import config
+import logging
 
+logger = logging.getLogger(__name__)
 # Create your views here.
 class SummarizeFindingsView(APIView):
 
@@ -22,7 +24,8 @@ class SummarizeFindingsView(APIView):
             return Response({"error": "Findings are required."}, status=status.HTTP_400_BAD_REQUEST)
         
         # load base model
-        base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
+        base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small", token = True)
+        logger.info(f"Base model loaded for summarization request at {datetime.datetime.now()}")
 
         # Hugging Face repo
         model_path = os.environ.get("HHUGGINGFACE_REPOSITORY", "LavenaD/medical-summarizer-peft")

@@ -10,7 +10,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from medical_records.medicalRecordProcessor import MedicalRecordProcessor
+import logging
+import datetime
 
+logger = logging.getLogger(__name__)
 
 
 # from .serializers import MedicalRecordSerializer
@@ -145,6 +148,7 @@ class ProcessDirectoryFilesView(APIView):
         try:
             medicalRecords =  MedicalRecordProcessor()
             response = medicalRecords.process_files(input_folder_path, rows_to_write)
+            logger.info(f"File processing completed at {datetime.datetime.now()}: {response}")
             return Response({"message": response}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

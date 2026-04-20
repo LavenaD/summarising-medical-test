@@ -24,7 +24,7 @@ class SummarizeFindingsView(APIView):
             return Response({"error": "Findings are required."}, status=status.HTTP_400_BAD_REQUEST)
         
         # load base model
-        base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small", token = True)
+        base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small", token = config("HUGGINGFACEHUB_API_TOKEN"))
         logger.info(f"Base model loaded for summarization request at {datetime.datetime.now()}")
 
         # Hugging Face repo

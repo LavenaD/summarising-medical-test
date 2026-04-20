@@ -28,7 +28,7 @@ class SummarizeFindingsView(APIView):
         logger.info(f"Base model loaded for summarization request at {datetime.datetime.now()}")
 
         # Hugging Face repo
-        model_path = os.environ.get("HHUGGINGFACE_REPOSITORY", "LavenaD/medical-summarizer-peft")
+        model_path = os.environ.get("HHUGGINGFACE_REPOSITORY", "LavenaD/medicalSummarizerPeft")
 
         # attach LoRA adapter
         model = PeftModel.from_pretrained(base_model, model_path)

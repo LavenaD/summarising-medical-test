@@ -32,7 +32,7 @@ class EvaluateModelView(APIView):
         token=config("HUGGINGFACEHUB_API_TOKEN"))
 
         # Hugging Face repo
-        model_path = config("HHUGGINGFACE_REPOSITORY", "LavenaD/medical-summarizer-peft")
+        model_path = config("HHUGGINGFACE_REPOSITORY", "LavenaD/medicalSummarizerPeft")
 
         # attach LoRA adapter
         model = PeftModel.from_pretrained(base_model, model_path)

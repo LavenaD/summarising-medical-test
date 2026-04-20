@@ -13,6 +13,12 @@ function Evaluate() {
     const [status, setStatus] = useState('')
     const [results, setResults] = useState(null)
 
+    const [responseMessage, setResponseMessage] = useState('')
+
+    const [formData, setFormData] = React.useState({
+        input_file_name: ''
+    })
+
     const pollIntervalRef = useRef(null)
     const baseURL = import.meta.env.VITE_BACKEND_BASE_API
 
@@ -68,12 +74,12 @@ function Evaluate() {
         stopPolling()
         try {
             console.log(`${baseURL}evaluate/`)
-            const response =  await axios.post(`${baseURL}evaluate/`)
+            const response =  await axios.post(`${baseURL}evaluate/`, formData)
             // Here you would implement the logic to evaluate the model's performance on a test dataset
             const newJobId = response.data.job_id
 
             if (!newJobId) {
-                throw new Error('job_id not returned from evaluate endpoint')
+                throw new Error('job_id not returned from evaluate endpoint' + JSON.stringify(response.data))
             }
 
             setJobId(newJobId)
@@ -89,7 +95,8 @@ function Evaluate() {
 
         } catch (error) {
             console.error('Error occurred while evaluating model:', error)
-            setErrors({ evaluation: 'Failed to evaluate model.' })
+            setErrors({ evaluation: 'Failed to evaluate model.' + error.message })
+            setResponseMessage('Failed to evaluate model. Please try again later.')
             setLoading(false)
             stopPolling()
         }finally {
@@ -111,6 +118,10 @@ function Evaluate() {
                     <h3 className='text-light text-center'>Evaluate Model</h3>
                     <p className='text-light text-center'>This page will be used to evaluate the model&apos;s performance on a test dataset.</p>
                 <form onSubmit={handleSubmit}>
+                    <div className='mb-3'>
+                        <input type='text' className='form-control' placeholder='Enter input file name like test_data.csv' value={formData.input_file_name} 
+                        onChange={(e) => setFormData({...formData, input_file_name: e.target.value})} />
+                    </div>
                      {loading || progress > 0 && progress < 100 ? (
                         <>
                         <button className='btn btn-info d-block mx-auto' disabled><FontAwesomeIcon icon={faSpinner} spin /> Evaluating...</button> 
@@ -130,7 +141,7 @@ function Evaluate() {
                         </>
                         ) : ( <button type='submit' className='btn btn-info d-block mx-auto'>Evaluate</button>)}
                               
-                    {errors.evaluation && <div className='alert alert-danger mt-3'>{errors.evaluation}</div>}
+                    {errors.evaluation && <div className='alert alert-danger mt-3'>{errors}</div>}
 
                     {results && (
                         <div className='alert alert-success mt-3'>

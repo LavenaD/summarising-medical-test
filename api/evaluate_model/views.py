@@ -152,6 +152,8 @@ class StartEvaluationView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+            
+            input_file_name = serializer.validated_data.get('input_file_name')
 
             if EvaluateModelView.check_job_exists(job_id):
                 return Response(

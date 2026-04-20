@@ -52,7 +52,7 @@ function ProcessFiles() {
                         onChange={(e) => setFormData({...formData, max_rows_per_outputfile: e.target.value})} />
                     </div>
 
-                    {success && <div className='alert alert-success mt-3'>Files processed successfully!</div>}
+                    {success && <div className='alert alert-success mt-3'>Files processed successfully- {responseMessage}!</div>}
                     {errors.error && <div className='alert alert-danger mt-3'>{errors.error}</div>}
                     {responseMessage && <div className='alert alert-info mt-3'>{responseMessage}</div>}
                     {loading ? (<button className='btn btn-info d-block mx-auto' disabled><FontAwesomeIcon icon={faSpinner} spin /> Please wait...</button> )

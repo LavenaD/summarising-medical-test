@@ -143,8 +143,15 @@ class StartEvaluationView(APIView):
             job_id = str(uuid.uuid4())
 
             serializer = EvaluateFileSerializer(data=request.data)
-            if serializer.is_valid():
-                input_file_name = serializer.validated_data.get('input_file_name')
+            if not serializer.is_valid():
+                return Response(
+                    {
+                        "errors": serializer.errors,
+                        "received_data": request.data,
+                        "content_type": request.content_type,
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             if EvaluateModelView.check_job_exists(job_id):
                 return Response(

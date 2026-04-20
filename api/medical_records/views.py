@@ -134,9 +134,18 @@ class MedicalRecordViewset(viewsets.ModelViewSet):
 class ProcessDirectoryFilesView(APIView):
     def post(self, request):
         serializer = ProcessFileSerializer(data=request.data)
-        if serializer.is_valid():
-            input_folder_path = serializer.validated_data.get('input_folder_path')
-            max_rows_per_outputfile = serializer.validated_data.get('max_rows_per_outputfile')
+        # serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "errors": serializer.errors,
+                    "received_data": request.data,
+                    "content_type": request.content_type,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        input_folder_path = serializer.validated_data.get('input_folder_path')
+        max_rows_per_outputfile = serializer.validated_data.get('max_rows_per_outputfile')
 
         if not input_folder_path:
             return Response({"error": "Input folder path is required."}, status=status.HTTP_400_BAD_REQUEST)

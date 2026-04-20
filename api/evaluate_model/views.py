@@ -29,7 +29,7 @@ class EvaluateModelView(APIView):
         logger.info(f"Starting evaluation job: {job_id} at {datetime.datetime.now()}")
         # load base model
         base_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small",
-        token=True)
+        token=config("HUGGINGFACEHUB_API_TOKEN"))
 
         # Hugging Face repo
         model_path = config("HHUGGINGFACE_REPOSITORY", "LavenaD/medical-summarizer-peft")

@@ -14,16 +14,14 @@ const Login = () => {
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState({})
     const { setIsLoggedIn } = useContext(AuthContext)
-    const navigate = useNavigate()
-    const baseURL = import.meta.env.VITE_BACKEND_BASE_API
-    
+    const navigate = useNavigate()    
 
     const handleLogin = async (e) => {
                     e.preventDefault()
                     setLoading(true)
     
         try{
-            const response = await axios.post(`${baseURL}token/`, formData)
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_API}token/`, formData) 
             console.log('User logged in successfully')
             localStorage.setItem('accessToken', response.data.access)
             localStorage.setItem('refreshToken', response.data.refresh)

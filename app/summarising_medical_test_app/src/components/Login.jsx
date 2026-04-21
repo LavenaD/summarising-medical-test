@@ -20,12 +20,10 @@ const Login = () => {
 
     const handleLogin = async (e) => {
                     e.preventDefault()
-                    console.log(formData)
                     setLoading(true)
     
         try{
             const response = await axios.post(`${baseURL}token/`, formData)
-            console.log(response.data)
             console.log('User logged in successfully')
             localStorage.setItem('accessToken', response.data.access)
             localStorage.setItem('refreshToken', response.data.refresh)

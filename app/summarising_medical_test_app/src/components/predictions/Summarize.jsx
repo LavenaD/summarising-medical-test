@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React from 'react'
 import axiosInstance from '../../axiosInstance'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faSpinner} from '@fortawesome/free-solid-svg-icons'
@@ -11,14 +11,11 @@ const Summarize = () => {
     const [formData, setFormData] = React.useState({
         findings: ''
     })
-    const baseURL = import.meta.env.VITE_BACKEND_BASE_API
     const handleSummarize = async (e) => {
         e.preventDefault()
-        console.log('formData:', formData)
         setLoading(true)
         try {
-            const response = await axiosInstance.post(`${baseURL}summarize/`, formData)
-            console.log('Summary:', response.data)
+            const response = await axiosInstance.post(`summarize/`, formData)
             setSummary(response.data.summary)
             setSuccess(true)
             setErrors({})
@@ -45,6 +42,7 @@ const Summarize = () => {
                     </div>
                     {success && <div className='alert alert-success mt-3'>Findings summarized successfully!</div>
                     && <div className='alert alert-info mt-3'>Summary: {summary}</div>}
+                    {errors.summarize && <div className='alert alert-danger mt-3'>{errors.summarize}</div>}
                     {loading ? (<button className='btn btn-info d-block mx-auto' disabled><FontAwesomeIcon icon={faSpinner} spin /> Please wait...</button> )
                         : ( <button className='btn btn-info d-block mx-auto'>Summarize</button>)}
                 </form>

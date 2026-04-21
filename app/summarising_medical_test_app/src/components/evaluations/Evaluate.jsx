@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState }  from 'react'
-import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faSpinner} from '@fortawesome/free-solid-svg-icons'
+import axiosInstance from '../../axiosInstance'
 
 function Evaluate() {
     const [errors, setErrors] = React.useState({})
@@ -13,14 +13,13 @@ function Evaluate() {
     const [status, setStatus] = useState('')
     const [results, setResults] = useState(null)
 
-    const [responseMessage, setResponseMessage] = useState('')
 
     const [formData, setFormData] = React.useState({
         input_file_name: ''
     })
 
     const pollIntervalRef = useRef(null)
-    const baseURL = import.meta.env.VITE_BACKEND_BASE_API
+    // const baseURL = import.meta.env.VITE_BACKEND_BASE_API
 
     const stopPolling = () => {
         if (pollIntervalRef.current) {
@@ -31,8 +30,8 @@ function Evaluate() {
 
     const fetchStatus = async (currentJobId) => {
         try {
-        const response = await axios.get(
-            `${baseURL}evaluate/get_status/${currentJobId}/`
+        const response = await axiosInstance.get(
+            `evaluate/get_status/${currentJobId}/`
         )
 
         const data = response.data
@@ -41,6 +40,7 @@ function Evaluate() {
         setProgress(data.progress ?? 0)
 
         if (data.results) {
+            setSuccess(true)
             setResults(data.results)
         }
 
@@ -63,8 +63,6 @@ function Evaluate() {
 
     const handleSubmit = async(e) => {
         e.preventDefault()
-        console.log('Evaluating model performance on test dataset...')
-        const baseURL = import.meta.env.VITE_BACKEND_BASE_API
         setLoading(true)
         setSuccess(false)
         setErrors({})
@@ -73,8 +71,7 @@ function Evaluate() {
         setResults(null)
         stopPolling()
         try {
-            console.log(`${baseURL}evaluate/`)
-            const response =  await axios.post(`${baseURL}evaluate/`, formData)
+            const response =  await axiosInstance.post('evaluate/', formData)
             // Here you would implement the logic to evaluate the model's performance on a test dataset
             const newJobId = response.data.job_id
 
@@ -91,12 +88,10 @@ function Evaluate() {
             pollIntervalRef.current = setInterval(() => {
                 fetchStatus(newJobId)
             }, 10000)
-            console.log('Model evaluation response:', response.data)
 
         } catch (error) {
             console.error('Error occurred while evaluating model:', error)
             setErrors({ evaluation: 'Failed to evaluate model.' + error.message })
-            setResponseMessage('Failed to evaluate model. Please try again later.')
             setLoading(false)
             stopPolling()
         }finally {
@@ -141,9 +136,9 @@ function Evaluate() {
                         </>
                         ) : ( <button type='submit' className='btn btn-info d-block mx-auto'>Evaluate</button>)}
                               
-                    {errors.evaluation && <div className='alert alert-danger mt-3'>{errors}</div>}
+                    {errors.evaluation && <div className='alert alert-danger mt-3'>{errors.evaluation}</div>}
 
-                    {results && (
+                    {success && results && (
                         <div className='alert alert-success mt-3'>
                             <h5>Model evaluated successfully! - The ROUGE Scores</h5>
                             <div><small>ROUGE-1: {results.rouge1}</small></div>

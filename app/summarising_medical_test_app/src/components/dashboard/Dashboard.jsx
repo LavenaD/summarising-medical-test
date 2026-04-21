@@ -2,15 +2,11 @@ import React, { useEffect } from 'react'
 import axiosInstance from '../../axiosInstance'
 import Button from '../Button'
 
-const baseURL = import.meta.env.VITE_BACKEND_BASE_API
-
 const Dashboard = () => {
     useEffect(() => {
         const fetchProtectedData = async () => {
         try{
-            console.log(`${baseURL}/protected-view/`)
-            const response = await axiosInstance.get(`${baseURL}protected-view/`);
-            console.log('Protected data:', response.data);
+            const response = await axiosInstance.get('protected-view/');
 
         }catch(error){
             console.error('Error fetching protected data:', error)

@@ -12,18 +12,14 @@ function ProcessFiles() {
     const [success, setSuccess] = useState(false)
     const [loading, setLoading] = useState(false)
     const [responseMessage, setResponseMessage] = useState('')
-    const baseURL = import.meta.env.VITE_BACKEND_BASE_API
 
     const handleProcessFile = async (e) => {
         e.preventDefault()
         // Get the input folder path and max rows from the form
-        console.log('formData:', formData)
         setLoading(true)
         // Make an API call to the backend to process the files
         try{
-            const response = await axiosInstance.post(`${baseURL}medical_records/process/`, formData)
-            console.log(response.data)
-            console.log('Files processed successfully:', response.data)
+            const response = await axiosInstance.post(`medical_records/process/`, formData)
             setErrors({})
             setSuccess(true)
             setLoading(false)

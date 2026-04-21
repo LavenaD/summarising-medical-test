@@ -153,13 +153,12 @@ REST_FRAMEWORK = {
 }
 if not DEBUG:
     CORS_ALLOWED_ORIGINS = [
-        "https://summarising-medical-test.onrender.com",
+        "https://summarising-medical-test-2.onrender.com",
     ]
 else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:5173",
-        "https://summarising-medical-test.onrender.com",
-        "http://127.0.0.1"
+        "https://summarising-medical-test-2.onrender.com",
 
     ]
 

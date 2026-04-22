@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework_simplejwt',
     'summarize',
+    'evaluate_model',
     "whitenoise.runserver_nostatic",
 ]
 

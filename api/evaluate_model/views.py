@@ -13,16 +13,30 @@ import datetime
 from decouple import config
 import logging
 from evaluate_model.serializers import EvaluateFileSerializer
+from evaluate_model.models import EvaluationJob
 
 logger = logging.getLogger(__name__)
 
 # Create your views here.
 class EvaluateModelView(APIView):
-    JOB_STORE = {}
 
     @classmethod
     def check_job_exists(self, job_id):
-        return job_id in self.JOB_STORE
+        return EvaluationJob.objects.filter(job_id=job_id).exists()
+    
+    @classmethod
+    def update_job_status(self, job_id, status, progress=None, results=None):
+        job = EvaluationJob.objects.filter(job_id=job_id).first()
+        if job:
+            job.status = status
+            if progress is not None:
+                job.progress = progress
+            if results is not None:
+                job.result = f"{results}"
+                print(f"Updating job {job_id} with results: {results}")
+            job.save()
+
+        
 
     @classmethod
     def run_evaluation_job(self, job_id, input_file_name):
@@ -67,16 +81,15 @@ class EvaluateModelView(APIView):
 
         complete_job = len(inputs) + 5
 
+        job = EvaluationJob.objects.filter(job_id=job_id).first()
+
         for start_idx in range(0, len(inputs), batch_size):
             end_idx = min(start_idx + batch_size, len(inputs))
             batch_texts = inputs[start_idx:end_idx]
 
             progress = 96 if int((end_idx / complete_job) * 100) > 96 else int((end_idx / complete_job) * 100)
 
-            EvaluateModelView.JOB_STORE[job_id]= {
-                "status": f"running - Generating output for batch {start_idx}:{end_idx}",
-                "progress": progress
-            }
+            EvaluateModelView.update_job_status(job_id, f"running - Generating output for batch {start_idx}:{end_idx}", progress)
 
             prompted_batch = [
                 "summarize medical report and return summary in no more than 2 sentences: " + str(text)
@@ -114,13 +127,11 @@ class EvaluateModelView(APIView):
 
 
         logger.info(f"All predictions generated for job: {job_id} at {datetime.datetime.now()}")
+        print(f"All predictions generated for job: {job_id} at {datetime.datetime.now()}")
 
         progress = 96 if int((end_idx / complete_job) * 100) > 96 else int((end_idx / complete_job) * 100)
 
-        EvaluateModelView.JOB_STORE[job_id]= {
-            "status": f"running - All predictions generated. Calculating ROUGE scores..",
-            "progress": progress
-        }
+        EvaluateModelView.update_job_status(job_id, f"running - All predictions generated. Calculating ROUGE scores..", progress)
 
         rouge = evaluate.load("rouge")
 
@@ -129,11 +140,7 @@ class EvaluateModelView(APIView):
             references=references
         )
 
-        EvaluateModelView.JOB_STORE[job_id]= {
-            "status": f"Completed - Evaluation finished with ROUGE scores calculated",
-            "progress": 100,
-            "results": results
-        }
+        EvaluateModelView.update_job_status(job_id, f"Completed - Evaluation finished with ROUGE scores calculated", 100, results)
 
         logger.info(f"Evaluation results for job {job_id} at {datetime.datetime.now()}: {results}")
 
@@ -162,7 +169,7 @@ class StartEvaluationView(APIView):
                 )            
 
 
-            EvaluateModelView.JOB_STORE[job_id] = {"status": "queued", "progress": 0}
+            EvaluationJob.objects.create(job_id=job_id, status="queued")
 
             thread = threading.Thread(
                 target= EvaluateModelView.run_evaluation_job,
@@ -171,7 +178,7 @@ class StartEvaluationView(APIView):
             thread.start()
 
             return Response({
-                "job_id": job_id,
+                "job_id": str(job_id),
                 "status": "started"
             })
         except Exception as e:
@@ -181,14 +188,20 @@ class StartEvaluationView(APIView):
 class EvaluationStatusView(APIView):   
     def get(self, request, job_id):
         try:
-            job = EvaluateModelView.JOB_STORE.get(job_id)
+            job = EvaluationJob.objects.filter(job_id=job_id).first()
 
             logger.info(f"Status check for job {job_id} at {datetime.datetime.now()}: {job}")
 
             if not job:
                 return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            return Response(job)
+            return Response({
+                "job_id": str(job.job_id),
+                "status": job.status,
+                "result": job.result,
+                "progress": job.progress,
+                "created_at": job.created_at.isoformat(),
+            })
         except Exception as e:
             logger.error(f"Error checking status for job {job_id} at {datetime.datetime.now()}: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

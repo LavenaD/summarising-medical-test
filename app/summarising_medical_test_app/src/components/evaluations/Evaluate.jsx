@@ -11,7 +11,7 @@ function Evaluate() {
     const [jobId, setJobId] = useState(null)
     const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState('')
-    const [results, setResults] = useState(null)
+    const [result, setResult] = useState(null)
 
 
     const [formData, setFormData] = React.useState({
@@ -39,9 +39,9 @@ function Evaluate() {
         setStatus(data.status || 'Processing...')
         setProgress(data.progress ?? 0)
 
-        if (data.results) {
+        if (data.result) {
             setSuccess(true)
-            setResults(data.results)
+            setResult(data.result)
         }
 
         const isCompleted =
@@ -68,7 +68,7 @@ function Evaluate() {
         setErrors({})
         setProgress(0)
         setStatus('Starting evaluation...')
-        setResults(null)
+        setResult(null)
         stopPolling()
         try {
             const response =  await axiosInstance.post('evaluate/', formData)
@@ -138,13 +138,13 @@ function Evaluate() {
                               
                     {errors.evaluation && <div className='alert alert-danger mt-3'>{errors.evaluation}</div>}
 
-                    {success && results && (
+                    {success && result && (
                         <div className='alert alert-success mt-3'>
                             <h5>Model evaluated successfully! - The ROUGE Scores</h5>
-                            <div><small>ROUGE-1: {results.rouge1}</small></div>
-                            <div><small>ROUGE-2: {results.rouge2}</small></div>
-                            <div><small>ROUGE-L: {results.rougeL}</small></div>
-                            <div><small>ROUGE-Lsum: {results.rougeLsum}</small></div>
+                            <div><small>ROUGE-1: {result.rouge1}</small></div>
+                            <div><small>ROUGE-2: {result.rouge2}</small></div>
+                            <div><small>ROUGE-L: {result.rougeL}</small></div>
+                            <div><small>ROUGE-Lsum: {result.rougeLsum}</small></div>
                         </div>
                     )}
 

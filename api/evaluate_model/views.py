@@ -34,6 +34,10 @@ class EvaluateModelView(APIView):
             if results is not None:
                 job.result = f"{results}"
                 print(f"Updating job {job_id} with results: {results}")
+                job.rouge1 = results.get("rouge1", 0.0)
+                job.rouge2 = results.get("rouge2", 0.0)
+                job.rougeL = results.get("rougeL", 0.0)
+                job.rougeLsum = results.get("rougeLsum", 0.0)
             job.save()
 
         
@@ -135,10 +139,16 @@ class EvaluateModelView(APIView):
 
         rouge = evaluate.load("rouge")
 
-        results = rouge.compute(
+        scores = rouge.compute(
             predictions=predictions,
             references=references
         )
+
+        results = {k: float(v) for k, v in scores.items()}
+        rouge1 = results.get("rouge1", 0.0)
+        rouge2 = results.get("rouge2", 0.0)
+        rougeL = results.get("rougeL", 0.0)
+        rougeLsum = results.get("rougeLsum", 0.0)
 
         EvaluateModelView.update_job_status(job_id, f"Completed - Evaluation finished with ROUGE scores calculated", 100, results)
 
@@ -198,7 +208,11 @@ class EvaluationStatusView(APIView):
             return Response({
                 "job_id": str(job.job_id),
                 "status": job.status,
-                "result": job.result,
+                "result": f"Rouge-1 : {job.rouge1}, Rouge-2 : {job.rouge2}, Rouge-L : {job.rougeL}, Rouge-Lsum : {job.rougeLsum}" if job.result else None,
+                "rouge1": job.rouge1,
+                "rouge2": job.rouge2,
+                "rougeL": job.rougeL,
+                "rougeLsum": job.rougeLsum,
                 "progress": job.progress,
                 "created_at": job.created_at.isoformat(),
             })

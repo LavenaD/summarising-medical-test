@@ -12,6 +12,11 @@ function Evaluate() {
     const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState('')
     const [result, setResult] = useState(null)
+    const [rouge1, setRouge1] = useState(0.0)
+    const [rouge2, setRouge2] = useState(0.0)
+    const [rougeL, setRougeL] = useState(0.0)
+    const [rougeLsum, setRougeLsum] = useState(0.0)
+
 
 
     const [formData, setFormData] = React.useState({
@@ -43,6 +48,11 @@ function Evaluate() {
             setSuccess(true)
             setResult(data.result)
         }
+
+        setRouge1(data.rouge1 ?? 0.0)
+        setRouge2(data.rouge2 ?? 0.0)
+        setRougeL(data.rougeL ?? 0.0)
+        setRougeLsum(data.rougeLsum ?? 0.0)
 
         const isCompleted =
             (data.progress ?? 0) >= 100 ||
@@ -141,10 +151,10 @@ function Evaluate() {
                     {success && result && (
                         <div className='alert alert-success mt-3'>
                             <h5>Model evaluated successfully! - The ROUGE Scores</h5>
-                            <div><small>ROUGE-1: {result.rouge1}</small></div>
-                            <div><small>ROUGE-2: {result.rouge2}</small></div>
-                            <div><small>ROUGE-L: {result.rougeL}</small></div>
-                            <div><small>ROUGE-Lsum: {result.rougeLsum}</small></div>
+                            <div><small>ROUGE-1: {rouge1}</small></div>
+                            <div><small>ROUGE-2: {rouge2}</small></div>
+                            <div><small>ROUGE-L: {rougeL}</small></div>
+                            <div><small>ROUGE-Lsum: {rougeLsum}</small></div>
                         </div>
                     )}
 
